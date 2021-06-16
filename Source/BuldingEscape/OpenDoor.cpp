@@ -1,8 +1,9 @@
 // Copyrigth 2021
 
+#include "OpenDoor.h"
+
 #include "Engine.h"
 #include "GameFramework/PlayerController.h"
-#include "OpenDoor.h"
 #include "ToolContextInterfaces.h"
 
 // Sets default values for this component's properties
