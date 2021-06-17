@@ -39,24 +39,17 @@ void UGrabber::SetupInputComponent()
 	InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::GrabReleased);
 }
 
-// Called every frame
-void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGrabber::TickComponent(const float DeltaTime, const ELevelTick TickType,
+                             FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (PhysicsHandle->GrabbedComponent)
+		PhysicsHandle->SetTargetLocation(GetPlayerReach());
 }
 
 FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 {
-	FVector PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
-
-	GetWorld()->
-		GetFirstPlayerController()->
-		GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
-
-	const FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
-
 	FHitResult Hit;
 
 	// Ray-cast out to a certain distance (Reach)
@@ -64,8 +57,8 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 
 	GetWorld()->
 		LineTraceSingleByObjectType(Hit,
-		                            PlayerViewPointLocation,
-		                            LineTraceEnd,
+		                            GetPlayerLocation(),
+		                            GetPlayerReach(),
 		                            FCollisionObjectQueryParams(ECC_PhysicsBody),
 		                            TraceParams
 		);
@@ -78,13 +71,31 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 	return Hit;
 }
 
+FVector UGrabber::GetPlayerReach() const
+{
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+
+	GetWorld()->
+		GetFirstPlayerController()->
+		GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+
+	return PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+}
+
+FVector UGrabber::GetPlayerLocation() const
+{
+	return GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
+}
+
 void UGrabber::GrabPressed()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab pressed"), *GetOwner()->GetName());
-	FHitResult ActorHit = GetFirstPhysicsBodyInReach();
+	const FHitResult ActorHit = GetFirstPhysicsBodyInReach();
+	if (ActorHit.GetActor())
+		PhysicsHandle->GrabComponentAtLocation(ActorHit.GetComponent(), NAME_None, GetPlayerReach());
 }
 
 void UGrabber::GrabReleased()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab released"), *GetOwner()->GetName());
+	PhysicsHandle->ReleaseComponent();
 }

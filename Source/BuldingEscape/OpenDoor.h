@@ -33,7 +33,10 @@ private:
 	float InitialAngle;
 	float DoorLastOpened = 0.f;
 	float DoorCloseDelay = 2.f;
-	
+
+	bool OpenDoorSoundPlayed = false;
+	bool CloseDoorSoundPlayed = true;
+
 	UPROPERTY(EditAnywhere)
 	float OpenAngle = 90.f;
 
@@ -47,8 +50,14 @@ private:
 	ATriggerVolume* PressurePlate;
 
 	UPROPERTY(EditAnywhere)
-	AActor* ActorThatOpens;
+	float MassToOpenDoor = 50.f;
 
-	void OpenDoor(float DeltaTime) const;
-	void CloseDoor(float DeltaTime) const;
+	void OpenDoor(float DeltaTime); 
+	void CloseDoor(float DeltaTime);
+	float GetPressurePlateMass() const;
+
+	UPROPERTY()
+	UAudioComponent* AudioComponent = nullptr;
+
+	void FindAudioComponent();
 };

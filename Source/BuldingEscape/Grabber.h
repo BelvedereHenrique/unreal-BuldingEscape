@@ -22,9 +22,12 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
+	UPROPERTY(EditAnywhere)
 	float Reach = 100.0f;
 
+	UPROPERTY()
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+	UPROPERTY()
 	UInputComponent* InputComponent = nullptr;
 	
 	void GrabReleased();
@@ -32,5 +35,6 @@ private:
 	void FindPhysicsHandle();
 	void SetupInputComponent();
 	FHitResult GetFirstPhysicsBodyInReach() const;
-
+	FVector GetPlayerReach() const;
+	FVector GetPlayerLocation() const;
 };
